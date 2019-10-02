@@ -215,7 +215,94 @@ def letter_combinations(s):
 			s = s[1:]
 	return output
 
+"""
+Given a list of intervals, make it so that that there are no overlaps.
+Example: [[1, 3], [2, 5], [6, 9]] -> [[1, 5], [6, 9]]
+"""
+
+def merge_intervals(l):
+	"""
+	:type l: List[List[int]]
+	:rtype: List[List[int]]
+	"""
+	sorted_list = []
+
+	# Ensure that intervals are sorted; takes O(nlogn) time
+	while l:
+		EFT, pos = float("inf"), float("inf")
+		for i, item in enumerate (l):
+			if item[1] < EFT:
+				EFT, pos = item[1], i
+		sorted_list.append(l.pop(pos))
+
+	# Merge the intervals; takes O(n) time
+	merged_list = []
+	for item in sorted_list:
+		# If end-time is less that next interval start-time, just append
+		if not merged_list or merged_list[-1][1] < item[0]:
+			merged_list.append(item)
+
+		else:
+			merged_list[-1][1] = item[1]
+
+	return merged_list
+
+"""
+Given a list of intervals, insert a new interval into it
+Example: [[1, 3], [2, 5], [6, 9]] + [3, 8] -> [[1, 9]]
+"""
+
+def insert_interval(L1, new_interval):
+	"""
+	:type L1: List[List[int]]
+	:type new_interval: List[int]
+	:rtype: List[List[int]]
+	"""
+	return merge_intervals(L1 + [new_interval])
+
+"""
+Given a set of integers, return the power set
+Example: [1, 2, 3] -> [ [], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3] ]
+"""
+def power_set(l):
+	"""
+	:type l: List[int]
+	:rtype: List[List[int]]
+	"""
+	output = [[]]
+
+	for num in l:
+		output += [ item + [num] for item in output ]
+
+	return output
 
 
+"""
+Given the size of a bag and a list of items with (weight, value), 
+return the highest value it can hold. Classic 0-1 Knapsack
+"""
+def knapsack (w, val, wt):
+	"""
+	:type w: List[int]
+	:type val: List[int]
+	:type wt: int
+	:rtype: int
+	"""
+	# Initialize DP array
+	DP = [ [0 for i in range (wt + 1)] for i in range(len(val) + 1) ]
 
+	for i in range (len(val) + 1):
+		for j in range (wt + 1):
+			# If there are 0 items or can't hold any weight, value is 0
+			if i == 0 or j == 0:
+				DP[i][j] == 0
+			# Check if it's better to take the item or leave the item if valid
+			elif w[i - 1] <= wt:
+				DP[i][j] = max(val[i - 1] + DP[i - 1][wt - w[i - 1]], DP[i - 1][j])
+			else:
+			# Can't take it, value is the same as the previous one
+				DP[i][j] = DP[i - 1][j]
+
+	# Return the max value of the knapsack
+	return DP[len(val)][wt]
 
